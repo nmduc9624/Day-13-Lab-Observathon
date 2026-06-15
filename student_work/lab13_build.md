@@ -2,14 +2,15 @@
 
 ## 1. Muc tieu lab
 
-Day-13 Observathon yeu cau quan sat va toi uu mot e-commerce agent dang black-box. Agent co the tinh sai, goi tool sai, bi loi tool, lo PII, bi prompt injection va drift theo session. Bai lam tap trung vao 4 file chinh trong thu muc `solution/`:
+Day-13 Observathon yeu cau quan sat va toi uu mot e-commerce agent dang black-box. Agent co the tinh sai, goi tool sai, bi loi tool, lo PII, bi prompt injection va drift theo session. Bai lam tap trung vao cac file trong thu muc `solution/`:
 
 - `config.json`
+- `config_practice.json`
 - `prompt.txt`
 - `wrapper.py`
 - `findings.json`
-
-Ngoai ra co them `config_practice.json` de chay practice v5 mock engine.
+- `findings_with_private_injection.json`
+- `examples.json`
 
 ## 2. Moi truong da dung
 
@@ -51,7 +52,7 @@ Practice v5 la mock engine, khong can API key. Dung file cau hinh rieng:
 ./bin/practice/observathon-sim --config solution/config_practice.json --wrapper solution/wrapper.py --out run_output.json
 ```
 
-Ket qua practice da dat:
+Ket qua practice:
 
 ```text
 20/20 status ok
@@ -73,16 +74,29 @@ Cham diem:
 ./bin/public/observathon-score --run run_output.json --findings solution/findings.json --team local-team --out score.json
 ```
 
-Ket qua public da ghi nhan:
+Ket qua public moi nhat:
 
 ```text
 120/120 status ok
-Public score: 99.99 / 100
-Correct: 92 / 120
-Diagnosis F1: 0.952
+Public score: 100.0 / 100
+Correct: 93 / 120
+Diagnosis F1: 1.0
+Judge mode: offline
 ```
 
-Ghi chu: public score 99.99 da gan cham toi da. Khac biet nho chu yeu lien quan den diagnosis/findings truoc khi tach public/private.
+Public subscore:
+
+```text
+correct  = 0.83
+quality  = 0.8907
+error    = 1.0
+latency  = 0.625
+cost     = 0.2749
+drift    = 0.6674
+prompt   = 0.9157
+```
+
+Ghi chu: public score da dat toi da 100/100 sau khi cap nhat findings phu hop public.
 
 ## 6. Private phase
 
@@ -111,9 +125,10 @@ Ket qua private moi nhat:
 Private score: 92.22 / 100
 Correct: 49 / 80
 Diagnosis F1: 1.0
+Judge mode: offline
 ```
 
-Chi tiet diem private:
+Private subscore:
 
 ```text
 correct  = 0.6725
@@ -148,7 +163,7 @@ prompt   = 0.8295
 - Tach product, quantity, coupon, destination
 - Dung duy nhat du lieu tu tool
 - Tinh subtotal, discount, shipping va total bang so hoc nguyen
-- Khong lap lai email/so dien thoai
+- Khong lap lai email hoac so dien thoai
 - Chong prompt injection trong ghi chu don hang
 - Tra loi hop le theo dang `Tong cong: <integer> VND`
 
@@ -166,7 +181,23 @@ prompt   = 0.8295
 - Chuan hoa dap an dua tren trace tool
 - Fallback khi tool tra loi `loyalty_service_down`
 
-## 8. Files can nop hoac nen push
+### Findings
+
+`solution/findings.json` va `solution/findings_with_private_injection.json` mo ta cac fault class chinh:
+
+- arithmetic_error
+- fabrication
+- tool_overuse
+- infinite_loop
+- tool_failure
+- pii_leak
+- error_spike
+- quality_drift
+- cost_blowup
+- latency_spike
+- prompt_injection
+
+## 8. Files nen push
 
 Nen push:
 
@@ -179,6 +210,7 @@ solution/findings.json
 solution/findings_with_private_injection.json
 solution/examples.json
 lab13_build.md
+.gitignore
 ```
 
 Khong nen push:
@@ -220,4 +252,10 @@ git push origin main
 
 ## 10. Ket luan
 
-Bai lab da hoan thanh ca practice, public va private. Public dat gan toi da `99.99/100`. Private dung scorer moi nhat dat `92.22/100`, voi `80/80` request chay thanh cong va diagnosis F1 dat `1.0`.
+Bai lab da hoan thanh ca practice, public va private.
+
+- Practice: 20/20 status ok
+- Public: 100.0/100, 93/120 correct, diagnosis F1 1.0
+- Private: 92.22/100, 49/80 correct, diagnosis F1 1.0
+
+Public phase da dat muc toi da. Private phase da dung o moc 92.22/100 theo scorer moi nhat.
