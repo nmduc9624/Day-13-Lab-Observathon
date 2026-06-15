@@ -50,8 +50,6 @@ export OPENAI_API_KEY="$(grep '^OPENAI_API_KEY=' .env | cut -d= -f2- | tr -d '\r
 
 Practice v5 dùng mock engine, không cần OpenAI API key. File cấu hình dùng riêng cho practice là `solution/config_practice.json`.
 
-Lệnh chạy:
-
 ```bash
 ./bin/practice/observathon-sim --config solution/config_practice.json --wrapper solution/wrapper.py --out run_output.json
 ```
@@ -69,13 +67,13 @@ Public v6 dùng real LLM và OpenAI API key.
 Chạy public simulator:
 
 ```bash
-./bin/public/observathon-sim --config solution/config.json --wrapper solution/wrapper.py --out run_output.json --concurrency 8
+./bin/public/observathon-sim --config solution/config.json --wrapper solution/wrapper.py --out student_work/public_run_output.json --concurrency 8
 ```
 
 Chấm điểm public:
 
 ```bash
-./bin/public/observathon-score --run run_output.json --findings solution/findings.json --team local-team --out score.json
+./bin/public/observathon-score --run student_work/public_run_output.json --findings solution/findings.json --team local-team --out student_work/public_score.json
 ```
 
 Kết quả public mới nhất:
@@ -83,24 +81,24 @@ Kết quả public mới nhất:
 ```text
 120/120 status ok
 Public score: 100.0 / 100
-Correct: 93 / 120
-Diagnosis F1: 1.0
+Correct: 95 / 120
+Diagnosis F1: 0.952
 Judge mode: offline
 ```
 
 Public subscore:
 
 ```text
-correct  = 0.83
-quality  = 0.8907
+correct  = 0.8467
+quality  = 0.9017
 error    = 1.0
-latency  = 0.625
-cost     = 0.2749
-drift    = 0.6674
-prompt   = 0.9157
+latency  = 0.422
+cost     = 0.2562
+drift    = 0.9377
+prompt   = 0.9215
 ```
 
-Public phase đã đạt điểm tối đa `100/100` sau khi cập nhật findings phù hợp với public scorer.
+Ghi chú: public headline vẫn đạt tối đa `100/100`. Diagnosis F1 hiện là `0.952` vì `solution/findings.json` đang là bản private có thêm `prompt_injection`.
 
 ## 6. Private phase
 
@@ -113,21 +111,21 @@ cp solution/findings_with_private_injection.json solution/findings.json
 Chạy private simulator:
 
 ```bash
-./bin/private/observathon-sim --config solution/config.json --wrapper solution/wrapper.py --out run_output.json --concurrency 8
+./bin/private/observathon-sim --config solution/config.json --wrapper solution/wrapper.py --out student_work/private_run_output.json --concurrency 8
 ```
 
 Chấm điểm private:
 
 ```bash
-./bin/private/observathon-score --run run_output.json --findings solution/findings.json --team local-team --out score.json
+./bin/private/observathon-score --run student_work/private_run_output.json --findings solution/findings.json --team local-team --out student_work/private_score.json
 ```
 
 Kết quả private mới nhất:
 
 ```text
 80/80 status ok
-Private score: 92.22 / 100
-Correct: 49 / 80
+Private score: 93.11 / 100
+Correct: 50 / 80
 Diagnosis F1: 1.0
 Judge mode: offline
 ```
@@ -135,16 +133,16 @@ Judge mode: offline
 Private subscore:
 
 ```text
-correct  = 0.6725
-quality  = 0.7988
+correct  = 0.685
+quality  = 0.8063
 error    = 1.0
-latency  = 0.6259
+latency  = 0.6143
 cost     = 0.0
-drift    = 0.782
-prompt   = 0.8295
+drift    = 0.8344
+prompt   = 0.8357
 ```
 
-Private phase được dừng ở mốc `92.22/100` theo scorer mới nhất.
+Private phase hiện đạt mốc `93.11/100` theo scorer mới nhất.
 
 ## 7. Các tối ưu đã thực hiện
 
@@ -227,6 +225,10 @@ bin/
 logs/
 run_output.json
 score.json
+student_work/public_run_output.json
+student_work/public_score.json
+student_work/private_run_output.json
+student_work/private_score.json
 debug_questions.json
 debug_output.json
 __pycache__/
@@ -261,7 +263,7 @@ git push origin main
 Bài lab đã hoàn thành cả practice, public và private.
 
 - Practice: `20/20 status ok`
-- Public: `100.0/100`, `93/120 correct`, diagnosis F1 `1.0`
-- Private: `92.22/100`, `49/80 correct`, diagnosis F1 `1.0`
+- Public: `100.0/100`, `95/120 correct`, diagnosis F1 `0.952`, headline tối đa
+- Private: `93.11/100`, `50/80 correct`, diagnosis F1 `1.0`
 
-Public phase đã đạt mức tối đa. Private phase dừng ở mốc `92.22/100` theo scorer mới nhất.
+Public phase đã đạt mức tối đa. Private phase hiện đạt `93.11/100` theo scorer mới nhất.
